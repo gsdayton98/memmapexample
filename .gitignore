@@ -1,0 +1,10 @@
+*.a
+*.o
+*~
+.DS_Store
+Debug
+Release
+*.vtg
+*.vpwhistu
+*.mak
+__pycache__
