@@ -18,29 +18,30 @@
 //
 //  @return Completion code. Non-zero on errors.
 
-#include <chrono>
 #include <cstdlib>
 #include <iostream>
 #include <stdexcept>
 #include <utility>
 
-using namespace std::chrono;
 
+#include <chrono>
 class SysException;
 unsigned int  fileReadMethod(const char*);
 unsigned int  memmapMethod(const char*);
 
-class StopWatch {
- private:
-  steady_clock::time_point start;
 
- public:
-  StopWatch() : start{steady_clock::now()}
+using namespace std::chrono;
+class StopWatch {
+  public:
+  StopWatch(): start{steady_clock::now()}
   { }
 
   void reset() { start = steady_clock::now(); }
 
   double read() const;
+
+ private:
+  steady_clock::time_point start;
 };
 
 
@@ -96,7 +97,16 @@ unsigned int  fileReadMethod(const char* infilename) {
 #include <unistd.h>
 #include <fcntl.h>
 class File {
-  friend class MemMap;
+ public:
+  File(const char* filename, int flag = O_RDONLY | O_CLOEXEC, int mode = 0)
+      : fd{File::open(filename, flag, mode)}
+  { }
+
+  // Concrete class, so don't inherit from it. Destructor is intentionally not virtual.
+  ~File() { (void)::close(fd);};
+
+  std::pair<void*, size_t> map();
+
  private:
   int fd;
 
@@ -104,31 +114,22 @@ class File {
   File& operator=(const File&) = delete;
 
   static int open(const char* filename, int flag, int mode);
-
- public:
-  File(const char* filename, int flag = O_RDONLY | O_CLOEXEC, int mode = 0)
-    : fd {File::open(filename, flag, mode) }
-  {}
-
-  ~File() {(void)::close(fd);};
-
-  std::pair<void*, size_t> map();
 };
 
 
 
 unsigned int  memmapMethod(const char* infilename) {
-  File infile {infilename};
+  File infile{infilename};
   auto mappedArea = infile.map();
 
-  unsigned long *primes = static_cast<unsigned long*>(mappedArea.first);
-  unsigned int nprimes = mappedArea.second/sizeof(unsigned long);
+  unsigned long* primes = static_cast<unsigned long*>(mappedArea.first);
+  unsigned int nprimes = mappedArea.second / sizeof(unsigned long);
 
   unsigned int census = 0;
-  for (auto *p = primes; p != primes + nprimes; ++p) {
+  for (auto* p = primes; p != primes + nprimes; ++p) {
     ++census;
   }
-  if (nprimes != census) throw std::runtime_error {"Number of mapped primes mismatch"};
+  if (nprimes != census) throw std::runtime_error{"Number of mapped primes mismatch"};
   return nprimes;
 }
 
@@ -144,14 +145,14 @@ int File::open(const char* filename, int flags, int mode) {
 #include <sys/types.h>
 #include <sys/mman.h>
 #include <sys/stat.h>
-std::pair<void *, size_t> File::map() {
+std::pair<void*, size_t> File::map() {
   struct stat stats;
 
-  if (::fstat(fd, &stats) < 0) throw SysException {};
+  if (::fstat(fd, &stats) < 0) throw SysException{};
 
   size_t len = stats.st_size;
-  void *mappedArea = ::mmap(0, len, PROT_READ, MAP_FILE|MAP_PRIVATE, fd, 0L);
-  if (mappedArea == MAP_FAILED) throw SysException {};
+  void* mappedArea = ::mmap(0, len, PROT_READ, MAP_FILE | MAP_PRIVATE, fd, 0L);
+  if (mappedArea == MAP_FAILED) throw SysException{};
 
   return std::make_pair(mappedArea, len);
 }
