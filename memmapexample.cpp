@@ -17,8 +17,9 @@
 //
 //
 //  @return Completion code. Non-zero on errors.
-
+#define _POSIX_C_SOURCE 200112L
 #include <cstdlib>
+#include <cstring>
 #include <iostream>
 #include <stdexcept>
 #include <utility>
