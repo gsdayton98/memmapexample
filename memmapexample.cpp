@@ -17,7 +17,6 @@
 //
 //
 //  @return Completion code. Non-zero on errors.
-#define _POSIX_C_SOURCE 200112L
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
@@ -167,10 +166,12 @@ double StopWatch::read() const {
 
 
 std::string SysException::message(int errorNumber) {
-  static const size_t MESSAGEBUFFERSIZE = 256;
-  std::string errorMessage(MESSAGEBUFFERSIZE, 0);
+  static const size_t MESSAGEBUFFERSIZE = 255;
+  char messageBuf[MESSAGEBUFFERSIZE+1];
+  ::memset(messageBuf, 0, MESSAGEBUFFERSIZE+1);
 
-  (void)::strerror_r(errorNumber, &errorMessage[0], errorMessage.size() - 1);
+  (void)::strerror_r(errorNumber, messageBuf, MESSAGEBUFFERSIZE);
+  std::string errorMessage(messageBuf);
   return errorMessage;
 }
 
