@@ -69,7 +69,7 @@ int main(int argc, char* argv[]) {
     std::cout << std::endl;
     stopwatch.reset();
     std::cout <<  memmapMethod(gozintaname) << " primes scanned" << std::endl;
-    std::cout << "Scanned memory map in " << stopwatch.read() << " seconds";
+    std::cout << "Scanned memory map in " << stopwatch.read() << " seconds" << std::endl;
 
     returnCode = EXIT_SUCCESS;
   } catch (const std::exception& ex) {
@@ -166,12 +166,19 @@ double StopWatch::read() const {
 
 
 std::string SysException::message(int errorNumber) {
-  static const size_t MESSAGEBUFFERSIZE = 255;
+  static const size_t MESSAGEBUFFERSIZE = 1024;
   char messageBuf[MESSAGEBUFFERSIZE+1];
   ::memset(messageBuf, 0, MESSAGEBUFFERSIZE+1);
 
-  (void)::strerror_r(errorNumber, messageBuf, MESSAGEBUFFERSIZE);
-  std::string errorMessage(messageBuf);
+  std::string errorMessage;
+  
+  # if _POSIX_C_SOURCE >= 200112L && ! _GNU_SOURCE
+    int err = ::strerror_r(errorNumber, messageBuf, MESSAGEBUFFERSIZE);
+    errorMessage.assign(messageBuf);
+  # else
+    char *err = ::strerror_r(errorNumber, messageBuf, MESSAGEBUFFERSIZE);
+    errorMessage.assign(err);
+  #endif
   return errorMessage;
 }
 

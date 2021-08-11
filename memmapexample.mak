@@ -27,7 +27,7 @@ COMMON_OBJ=$(OUTDIR)/memmapexample.o
 OBJ=$(COMMON_OBJ) $(CFG_OBJ)
 ALL_OBJ=$(OUTDIR)/memmapexample.o 
 
-COMPILE=clang++ -c   -g --std=c++2a -o "$(OUTDIR)/$(*F).o" $(CFG_INC) $<
+COMPILE=clang++ -c   -g --std=c++2a -fstandalone-debug -o "$(OUTDIR)/$(*F).o" $(CFG_INC) $<
 LINK=clang++  -g -o "$(OUTFILE)" $(ALL_OBJ)
 
 # Pattern rules
@@ -69,7 +69,7 @@ COMMON_OBJ=$(OUTDIR)/memmapexample.o
 OBJ=$(COMMON_OBJ) $(CFG_OBJ)
 ALL_OBJ=$(OUTDIR)/memmapexample.o 
 
-COMPILE=clang++ -c   --std=c++2a -o "$(OUTDIR)/$(*F).o" $(CFG_INC) $<
+COMPILE=clang++ -c   --std=c++2a -fstandalone-debug -o "$(OUTDIR)/$(*F).o" $(CFG_INC) $<
 LINK=clang++  -o "$(OUTFILE)" $(ALL_OBJ)
 
 # Pattern rules
