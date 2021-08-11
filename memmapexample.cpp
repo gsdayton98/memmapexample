@@ -172,7 +172,7 @@ std::string SysException::message(int errorNumber) {
 
   std::string errorMessage;
   
-  # if _POSIX_C_SOURCE >= 200112L && ! _GNU_SOURCE
+  # ifdef __APPLE__
     int err = ::strerror_r(errorNumber, messageBuf, MESSAGEBUFFERSIZE);
     errorMessage.assign(messageBuf);
   # else
