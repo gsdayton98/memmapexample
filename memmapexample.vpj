@@ -251,10 +251,18 @@
             Filters=""
             GUID="{4BA3303C-0504-404F-B423-D46E3289419B}"/>
     </CustomFolders>
-    <Files AutoFolders="DirectoryView">
-        <F N="memmapexample.cpp"/>
-        <F N="README.md"/>
-    </Files>
     <List Name="RTE">
     </List>
+    <Files AutoFolders="DirectoryView">
+        <F N="file.hpp"/>
+        <F N="filemap.cpp"/>
+        <F N="fileopen.cpp"/>
+        <F N="memmapexample.cpp"/>
+        <F N="oscpp.hpp"/>
+        <F N="README.md"/>
+        <F N="stopwatch.cpp"/>
+        <F N="stopwatch.hpp"/>
+        <F N="sysexception.cpp"/>
+        <F N="sysexception.hpp"/>
+    </Files>
 </Project>

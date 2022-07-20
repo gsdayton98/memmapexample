@@ -15,46 +15,20 @@
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-//
-//  @return Completion code. Non-zero on errors.
 #include <cstdlib>
 #include <cstring>
 #include <iostream>
 #include <stdexcept>
 #include <utility>
+#include "oscpp.hpp"
+
+using oscpp::File;
+using oscpp::StopWatch;
+using oscpp::SysException;
 
 
-#include <chrono>
-class SysException;
-unsigned int  fileReadMethod(const char*);
-unsigned int  memmapMethod(const char*);
-
-
-using namespace std::chrono;
-class StopWatch {
-  public:
-  StopWatch(): start{steady_clock::now()}
-  { }
-
-  void reset() { start = steady_clock::now(); }
-
-  double read() const;
-
- private:
-  steady_clock::time_point start;
-};
-
-
-
-#include <cerrno>
-class SysException : public std::runtime_error {
- public:
-  SysException(int errorNumber = errno) : std::runtime_error(SysException::message(errorNumber)) { }
-
-  static std::string message(int errorNumber);
-};
-
-
+unsigned int  fileReadMethod(const char*); 
+unsigned int memmapMethod(const char*); 
 
 
 int main(int argc, char* argv[]) {
@@ -94,31 +68,8 @@ unsigned int  fileReadMethod(const char* infilename) {
 }
 
 
-#include <unistd.h>
-#include <fcntl.h>
-class File {
- public:
-  File(const char* filename, int flag = O_RDONLY | O_CLOEXEC, int mode = 0)
-      : fd{File::open(filename, flag, mode)}
-  { }
-
-  // Concrete class, so don't inherit from it. Destructor is intentionally not virtual.
-  ~File() { (void)::close(fd);};
-
-  std::pair<void*, size_t> map();
-
- private:
-  int fd;
-
-  File(const File&) = delete;
-  File& operator=(const File&) = delete;
-
-  static int open(const char* filename, int flag, int mode);
-};
-
-
-
-unsigned int  memmapMethod(const char* infilename) {
+// Count the numbert of primes in the file by memory mapping the file
+ unsigned int  memmapMethod(const char* infilename) {
   File infile{infilename};
   auto mappedArea = infile.map();
 
@@ -132,53 +83,3 @@ unsigned int  memmapMethod(const char* infilename) {
   if (nprimes != census) throw std::runtime_error{"Number of mapped primes mismatch"};
   return nprimes;
 }
-
-
-
-int File::open(const char* filename, int flags, int mode) {
-  int fd = ::open(filename, flags, mode);
-  if (fd < 0) throw SysException{};
-  return fd;
-}
-
-
-#include <sys/types.h>
-#include <sys/mman.h>
-#include <sys/stat.h>
-std::pair<void*, size_t> File::map() {
-  struct stat stats;
-
-  if (::fstat(fd, &stats) < 0) throw SysException{};
-
-  size_t len = stats.st_size;
-  void* mappedArea = ::mmap(0, len, PROT_READ, MAP_FILE | MAP_PRIVATE, fd, 0L);
-  if (mappedArea == MAP_FAILED) throw SysException{};
-
-  return std::make_pair(mappedArea, len);
-}
-
-
-double StopWatch::read() const {
-  steady_clock::time_point stopwatch_stop = steady_clock::now();
-  steady_clock::duration time_span = stopwatch_stop - start;
-  return duration_cast<duration<double> >(time_span).count();
-}
-
-
-std::string SysException::message(int errorNumber) {
-  static const size_t MESSAGEBUFFERSIZE = 1024;
-  char messageBuf[MESSAGEBUFFERSIZE+1];
-  ::memset(messageBuf, 0, MESSAGEBUFFERSIZE+1);
-
-  std::string errorMessage;
-  
-  # ifdef __APPLE__
-    int err = ::strerror_r(errorNumber, messageBuf, MESSAGEBUFFERSIZE);
-    errorMessage.assign(messageBuf);
-  # else
-    char *err = ::strerror_r(errorNumber, messageBuf, MESSAGEBUFFERSIZE);
-    errorMessage.assign(err);
-  #endif
-  return errorMessage;
-}
-
