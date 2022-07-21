@@ -10,21 +10,19 @@
 // the Software.
 //
 // THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
-// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL
+// THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT. IN NO EVENT SHALL
 // THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-
 #include "stopwatch.hpp"
 
-using  std::chrono::steady_clock;
+using std::chrono::steady_clock;
 using std::chrono::duration;
 
-
-double oscpp::StopWatch::read() const {
+double StopWatch::read() const {
   steady_clock::time_point stopwatch_stop = steady_clock::now();
   steady_clock::duration time_span = stopwatch_stop - start;
-  return duration_cast<duration<double> >(time_span).count();
+  return duration_cast< duration<double> >(time_span).count();
 }
 

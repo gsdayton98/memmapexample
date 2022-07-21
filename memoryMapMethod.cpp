@@ -15,37 +15,31 @@
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
 //
-#include <cstdlib>
-#include <iostream>
+#include <fcntl.h>
 #include <stdexcept>
-#include "stopwatch.hpp"
+#include <sys/mman.h>
+#include <sys/stat.h>
+#include "systemexception.hpp"
 
-unsigned int  fileReadMethod(const char*);
-unsigned int memoryMapMethod(const char*);
+// Count the number of primes in the file by memory mapping the file
+unsigned int memoryMapMethod(const char* inputFilename) {
 
+    int fd = ::open(inputFilename, O_RDONLY | O_CLOEXEC, 0);
+    if (fd < 0) throw SystemException{};
 
-int main(int argc, char* argv[]) {
-  int returnCode = EXIT_FAILURE;
-  const char* input_file_name = argc < 2 ? "primes.dat" : argv[1];
+    struct stat stats;  //NOLINT
+    if (::fstat(fd, &stats) < 0) throw SystemException{};
 
-  try {
-    StopWatch stopwatch;
-    std::cout << fileReadMethod(input_file_name) << " primes read in" << std::endl;
-    auto fileReadTime = stopwatch.read();
-    std::cout << "Read file in " << fileReadTime << " seconds." << std::endl;
+    size_t len = stats.st_size;
+    void* mappedArea = ::mmap(nullptr, len, PROT_READ, MAP_FILE | MAP_PRIVATE, fd, 0L);
+    if (mappedArea == MAP_FAILED) throw SystemException{};
+    auto* primes = static_cast<unsigned long*>(mappedArea);
+    unsigned int countOfPrimes = len/sizeof(unsigned long);
 
-    std::cout << std::endl;
-    stopwatch.reset();
-    std::cout << memoryMapMethod(input_file_name) << " primes scanned" << std::endl;
-    auto memoryReadTime = stopwatch.read();
-    std::cout << "Scanned memory map in " << memoryReadTime << " seconds" << std::endl;
-
-    std::cout << std::endl;
-    std::cout << "Memory read time is " << fileReadTime/memoryReadTime << " times faster"  << std::endl;
-
-    returnCode = EXIT_SUCCESS;
-  } catch (const std::exception& ex) {
-    std::cerr << argv[0] << ": Exception: " << ex.what() << std::endl;
-  }
-  return returnCode;
+    unsigned int census = 0;
+    for (auto* p = primes; p != primes + countOfPrimes; ++p) {
+        ++census;
+    }
+    if (countOfPrimes != census) throw std::runtime_error{"Number of mapped primes mismatch"};
+    return countOfPrimes;
 }
