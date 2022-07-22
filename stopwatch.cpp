@@ -20,7 +20,7 @@
 using std::chrono::steady_clock;
 using std::chrono::duration;
 
-double StopWatch::read() const {
+auto StopWatch::read() const -> double {
   steady_clock::time_point stopwatch_stop = steady_clock::now();
   steady_clock::duration time_span = stopwatch_stop - start;
   return duration_cast< duration<double> >(time_span).count();

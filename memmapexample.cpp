@@ -20,11 +20,11 @@
 #include <stdexcept>
 #include "stopwatch.hpp"
 
-unsigned int  fileReadMethod(const char*);
-unsigned int memoryMapMethod(const char*);
+auto fileReadMethod(const char*) -> unsigned int;
+auto memoryMapMethod(const char*) -> unsigned int;
 
 
-int main(int argc, char* argv[]) {
+auto main(int argc, char* argv[]) -> int {
   int returnCode = EXIT_FAILURE;
   const char* input_file_name = argc < 2 ? "primes.dat" : argv[1];
 

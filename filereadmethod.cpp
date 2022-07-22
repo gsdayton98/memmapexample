@@ -18,7 +18,7 @@
 
 /// Count the number of primes in the file by reading from a stream
 #include <fstream>
-unsigned int fileReadMethod(const char* inputFileName) {
+auto fileReadMethod(const char* inputFileName) -> unsigned int {
     unsigned int census = 0;
 
     unsigned long prime;

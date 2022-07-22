@@ -25,7 +25,7 @@ class StopWatch {
 
   void reset() { start = std::chrono::steady_clock::now(); }
 
-  [[nodiscard]] double read() const;
+  [[nodiscard]] auto read() const -> double;
 
  private:
   std::chrono::steady_clock::time_point start;

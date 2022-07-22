@@ -14,26 +14,20 @@
 // THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF
 // CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER
 // DEALINGS IN THE SOFTWARE.
-
+//
 #include <cstring>
 #include "systemexception.hpp"
 
-
-std::string SystemException::message(int errorNumber) {
+auto SystemException::message(int errorNumber) -> std::string {
   static const size_t MESSAGE_BUFFER_SIZE = 1024;
   char messageBuf[MESSAGE_BUFFER_SIZE + 1];
   ::memset(messageBuf, 0, MESSAGE_BUFFER_SIZE + 1);
 
-  std::string errorMessage;
-
-  #ifdef __APPLE__
     (void) ::strerror_r(errorNumber, messageBuf, MESSAGE_BUFFER_SIZE);
-  errorMessage.assign(messageBuf);
-  #else
-  char* err = ::strerror_r(errorNumber, messageBuf, MESSAGE_BUFFER_SIZE);
-  errorMessage.assign(err);
-  #endif
-  return errorMessage;
+
+    std::string errorMessage;
+    errorMessage.assign(messageBuf);
+    return errorMessage;
 }
 
 

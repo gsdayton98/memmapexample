@@ -22,7 +22,7 @@
 #include "systemexception.hpp"
 
 // Count the number of primes in the file by memory mapping the file
-unsigned int memoryMapMethod(const char* inputFilename) {
+auto memoryMapMethod(const char* inputFilename) -> unsigned int  {
 
     int fd = ::open(inputFilename, O_RDONLY | O_CLOEXEC, 0);
     if (fd < 0) throw SystemException{};

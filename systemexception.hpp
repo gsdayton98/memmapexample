@@ -25,7 +25,7 @@ class SystemException : public std::runtime_error {
  public:
   explicit SystemException(int errorNumber = errno) : std::runtime_error(SystemException::message(errorNumber)) { }
 
-  static std::string message(int errorNumber);
+  static auto message(int errorNumber) -> std::string;
 };
 
 #endif // SYSTEM_EXCEPTION
