@@ -7,3 +7,5 @@ Release
 *.vtg
 *.vpwhistu
 __pycache__
+cmake-build-*
+.idea
